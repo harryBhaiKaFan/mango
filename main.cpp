@@ -64,7 +64,7 @@ int main(int ac,char *av[])
 	uint32_t lp = 0;
 	uint32_t cp = 0;
 
-	SDL_GetKeyboardFocus(); // For android
+	SDL_StartTextInput(); // For android
 	while(running)
 	{
 		while(SDL_PollEvent(&e))
