@@ -1,0 +1,2 @@
+# mango
+A text editor.
