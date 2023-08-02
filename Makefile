@@ -1,8 +1,8 @@
 CC=g++
-CFLAGS=-lm -lSDL2 -lSDL2_ttf
+CFLAGS=-I include -lm -lSDL2 -lSDL2_ttf
 
 
 all: main
 
-main: main.cpp
+main: src/main.cpp
 	$(CC) $^ -o $@ $(CFLAGS)
