@@ -15,6 +15,10 @@
 #include <SDL2/SDL_ttf.h>
 #include <string>
 
+#include "Window.hpp"
+#include "Editor.hpp"
+#include "Util.hpp"
+
 using namespace std;
 
 int main(int ac,char *av[])
@@ -33,36 +37,13 @@ int main(int ac,char *av[])
 	}
 
 
-	SDL_Window *win = SDL_CreateWindow("Mango",0,0,640,480,SDL_WINDOW_SHOWN);
-	SDL_Renderer *ren = SDL_CreateRenderer(win,-1,SDL_RENDERER_ACCELERATED);
-	SDL_SetRenderDrawBlendMode(ren, SDL_BLENDMODE_BLEND);
+	mango::Window* win = mango::Window::get();
+	mango::Editor* editor = mango::Editor::get();
 
-	if (ren == NULL)
-	{
-		cout << SDL_GetError() << endl;
-		return EXIT_FAILURE;
-	}
+	mango::init(win->renderer);
 
-	TTF_Font *f = TTF_OpenFont("./font/FiraMonoNerdFont-Regular.otf", 32);
 	SDL_Event e;
-	bool running = true,keydown = false;
-	string text = "";
-	SDL_Color fg = {
-		.r = 225,
-		.g = 245,
-		.b = 225,
-		.a = 255
-	};
-	SDL_Rect rect = {
-		.x=0,.y=0,.h=60
-	};
-
-	SDL_Rect cursor = {
-		.x=0,.y=0,.w=10,.h=60
-	};
-	int cursorA = 255;
-	uint32_t lp = 0;
-	uint32_t cp = 0;
+	bool running = true;
 
 	SDL_StartTextInput(); // For android
 	while(running)
@@ -76,59 +57,32 @@ int main(int ac,char *av[])
 					break;
 
 				case SDL_KEYUP:
-					keydown = false;
+					editor->keydown = false;
 					break;
 
 				case SDL_KEYDOWN:
-					cursorA = 255;
-					keydown = true;
+					editor->cursorA = 255;
+					editor->keydown = true;
 					int ch = e.key.keysym.sym;
 
-					if(ch == 8 && text.size() > 0)
-						text.pop_back();
+					if(ch == 8 && editor->text.size() > 0)
+						editor->text.pop_back();
 					else if(isalnum(ch) || ispunct(ch) || ch == 32)
-						text.push_back((char)ch);
+						editor->text.push_back((char)ch);
 
 					break;
 			}
-		}
-
-		SDL_SetRenderDrawColor(ren,30,30,30,255);
-		SDL_RenderClear(ren);
-
-		SDL_Surface *surf = TTF_RenderText_Solid(f,text.c_str(),fg);
-		SDL_Texture *tex = SDL_CreateTextureFromSurface(ren,surf);
-
-		if (text.size()*25 < 640)
-			rect.w = text.size()*25;
-
-		cursor.x = rect.w + 3;
-
-		SDL_RenderCopy(ren,tex,NULL,&rect);
-
-
-		if ((lp == 0 || cp - lp >= 600) && !keydown)
-		{
-			lp = SDL_GetTicks();
-			if (cursorA == 255)
-				cursorA = 0;
-			else 
-				cursorA = 255;
+			win->clear();
+			editor->render(win->renderer);
+			win->render();
 		}
 
 
-		SDL_SetRenderDrawColor(ren,120,230,120,cursorA);
-		SDL_RenderFillRect(ren,&cursor);
 
-		cp = SDL_GetTicks();
-
-		SDL_RenderPresent(ren);
 		SDL_Delay(17);
 	}
 
 
-	SDL_DestroyRenderer(ren);
-	SDL_DestroyWindow(win);
 	SDL_Quit();
 	return (EXIT_SUCCESS);
 }

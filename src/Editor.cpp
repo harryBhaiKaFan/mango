@@ -1,9 +1,11 @@
 #include "Editor.hpp"
 #include <stdio.h>
 
-namespace mango {
-	void print()
-	{
-		printf("Mango");
-	}
+
+
+namespace mango
+{
+
+Editor* Editor::editor = NULL;
+
 }
