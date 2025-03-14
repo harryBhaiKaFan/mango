@@ -1,2 +1,3 @@
 # mango
-A text editor.
+
+A text editor only in C++ and SDL2.
