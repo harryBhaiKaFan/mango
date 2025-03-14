@@ -7,23 +7,27 @@
 #include <SDL2/SDL_timer.h>
 #include <SDL2/SDL_video.h>
 #include <cctype>
-#include <cstdint>
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
-#include <string>
 
-#include "Window.hpp"
-#include "Editor.hpp"
-#include "Util.hpp"
+
+// TODO:
+// 
+// 1. Implement window and rendering system properly
+// 2. init() fn must initialise app
+// 		i. Mango.hpp and Mango.cpp will have the functional of app
+// 3. assembling components and making the app
+
+#include "render/Window.hpp"
+#include "render/Render.hpp"
 
 using namespace std;
 
 int main(int ac,char *av[])
 {
-
 	if(SDL_Init(SDL_INIT_EVERYTHING) != 0)
 	{
 		cout << SDL_GetError() << endl;
@@ -36,11 +40,11 @@ int main(int ac,char *av[])
 		exit(EXIT_FAILURE);
 	}
 
+	TTF_Font *f = mango::LoadFont("./font/FiraMonoNerdFontMono-Medium.otf");
 
 	mango::Window* win = mango::Window::get();
-	mango::Editor* editor = mango::Editor::get();
-
 	mango::init(win->renderer);
+
 
 	SDL_Event e;
 	bool running = true;
@@ -50,34 +54,17 @@ int main(int ac,char *av[])
 	{
 		while(SDL_PollEvent(&e))
 		{
-			switch (e.type)
+			if (e.type == SDL_QUIT)
 			{
-				case SDL_QUIT:
-					running = false;
-					break;
-
-				case SDL_KEYUP:
-					editor->keydown = false;
-					break;
-
-				case SDL_KEYDOWN:
-					editor->cursorA = 255;
-					editor->keydown = true;
-					int ch = e.key.keysym.sym;
-
-					if(ch == 8 && editor->text.size() > 0)
-						editor->text.pop_back();
-					else if(isalnum(ch) || ispunct(ch) || ch == 32)
-						editor->text.push_back((char)ch);
-
-					break;
+				running = false;
 			}
-			win->clear();
-			editor->render(win->renderer);
-			win->render();
+
 		}
 
 
+		win->clear();
+
+		win->render();
 
 		SDL_Delay(17);
 	}
