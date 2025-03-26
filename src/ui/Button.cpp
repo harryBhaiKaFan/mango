@@ -17,12 +17,12 @@ Button::Button(const char *btn_txt,SDL_Renderer *ren,SDL_Rect rect,const char *f
 	this->padding(padding);
 }
 
-void Button::attachClickListener(void* (*fn)(void*))
+void Button::attach_click_listener(void* (*fn)(void*))
 {
 	this->on_click = fn;
 }
 
-void Button::detachClickListener()
+void Button::detach_click_listener()
 {
 	this->on_click = NULL;
 }
@@ -33,9 +33,10 @@ void Button::process_events(SDL_Event *e)
 
 	click = SDL_GetMouseState(&mx, &my);
 
-	if (mx > this->renderRect.x && mx < this->renderRect.x + this->renderRect.w && my > this->renderRect.y && my < this->renderRect.y + this->renderRect.h && click && this->on_click != NULL)
+	if (mx > this->renderRect.x && mx < this->renderRect.x + this->renderRect.w && my > this->renderRect.y && my < this->renderRect.y + this->renderRect.h)
 	{
-		click_return_data = on_click(click_param_data);
+		if (click && this->on_click != NULL)
+			click_return_data = on_click(click_param_data);
 	}
 }
 

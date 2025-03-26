@@ -29,12 +29,13 @@ class TextInput: public View
 		const string allowed_char = "1234567890abcdefghijklmnopqrstuvwxyz`-=[]\\;',./ ";
 		const string allowed_shift_char = "!@#$%^&*()ABCDEFGHIJKLMNOPQRSTUVWXYZ~_+{}|:\"<>? ";
 	public:
-		TextInput(TTF_Font *font,SDL_Rect rect,SDL_Color bgColor,SDL_Color fgColor,int padding);
+		TextInput(const char *font_path,SDL_Rect rect,SDL_Color bgColor,SDL_Color fgColor,int padding);
+		void set_y(uint32_t y);
 		void start_input();
 		void stop_input();
-		string getText();
-		void setText(string str);
-		void setFont(TTF_Font *font);
+		string get_text();
+		void set_text(string str);
+		void set_font(const char *font_path);
 		void process_events(SDL_Event *e);
 		void render(SDL_Renderer *ren);
 };

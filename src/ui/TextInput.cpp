@@ -15,7 +15,7 @@ using namespace std;
 namespace mango
 {
 
-TextInput::TextInput(TTF_Font *font,SDL_Rect rect,SDL_Color bgColor,SDL_Color fgColor={255,255,255,255},int padding = 10):View(bgColor,rect)
+TextInput::TextInput(const char *font_path,SDL_Rect rect,SDL_Color bgColor,SDL_Color fgColor={255,255,255,255},int padding = 10):View(bgColor,rect)
 {
 	this->padding(padding);
 	this->fgColor = fgColor;
@@ -26,12 +26,19 @@ TextInput::TextInput(TTF_Font *font,SDL_Rect rect,SDL_Color bgColor,SDL_Color fg
 		.w = 2,
 		.h = textRect.h
 	};
-	setFont(font);
+	set_font(font_path);
+}
+
+void TextInput::set_y(uint32_t y)
+{
+	this->rect.y = y;
+	this->textRect.y = y;
+	this->cursor_rect.y = y;
 }
 
 void TextInput::start_input()
 {
-	setBorder({255,255,0,255});
+	set_border({255,255,0,255});
 	SDL_GetKeyboardFocus();
 	SDL_StartTextInput();
 	input_on = true;
@@ -40,23 +47,23 @@ void TextInput::start_input()
 void TextInput::stop_input()
 {
 	SDL_StopTextInput();
-	removeBorder();
+	remove_border();
 	input_on = false;
 }
 
-string TextInput::getText()
+string TextInput::get_text()
 {
 	return text; 
 }
 
-void TextInput::setText(string str)
+void TextInput::set_text(string str)
 {
 	text = str;
 }
 
-void TextInput::setFont(TTF_Font *font)
+void TextInput::set_font(const char *font_path)
 {
-	this->font = font;
+	this->font = TTF_OpenFont(font_path, 0.75 * textRect.h);
 }
 
 void TextInput::process_events(SDL_Event *e)
@@ -103,8 +110,6 @@ void TextInput::process_events(SDL_Event *e)
 		TTF_MeasureText(font,text.c_str(),textRect.w, &extent, &text_count);
 
 		if (textRect.w > extent) textRect.w = extent;
-
-
 		if (cursor_pos > text_st_pos + text_count)
 		{
 			text_st_pos++;
@@ -143,6 +148,7 @@ void TextInput::render(SDL_Renderer *ren)
 
 		SDL_Texture *text_tx = TextView::LoadText(splice.c_str(),font,ren,fgColor);
 		SDL_RenderCopy(ren,text_tx,NULL,&textRect);
+		SDL_DestroyTexture(text_tx);
 	}
 
 	int factor = cursor_pos - text_st_pos;

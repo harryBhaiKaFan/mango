@@ -18,8 +18,8 @@ class Button: public View
 
 		Button(const char* btn_txt,SDL_Renderer *ren, SDL_Rect rect,const char *font_path, SDL_Color bgColor, SDL_Color fgColor,int padding);
 
-		void attachClickListener(void*(*fn)(void*));
-		void detachClickListener(void);
+		void attach_click_listener(void*(*fn)(void*));
+		void detach_click_listener(void);
 		void process_events(SDL_Event *e);
 		void render(SDL_Renderer* ren);
 };

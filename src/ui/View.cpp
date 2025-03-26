@@ -13,30 +13,30 @@ View::View(SDL_Color bgColor, SDL_Rect rect)
 	this->renderRect = rect;
 }
 
-void View::setBorder(SDL_Color borderColor)
+void View::set_border(SDL_Color borderColor)
 {
 	bordered = true;
 	this->borderColor = borderColor;
 }
 
-void View::removeBorder()
+void View::remove_border()
 {
 	bordered = false;
 }
 
 void View::padding(uint32_t p)
 {
-	paddingBlock(p);
-	paddingInline(p);
+	padding_block(p);
+	padding_inline(p);
 }
 
-void View::paddingBlock(uint32_t p)
+void View::padding_block(uint32_t p)
 {
 	paddingT = p;
 	paddingB = p;
 }
 
-void View::paddingInline(uint32_t p)
+void View::padding_inline(uint32_t p)
 {
 	paddingL = p;
 	paddingR = p;

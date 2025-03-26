@@ -29,7 +29,6 @@ TextView::TextView(const char *text,const char *font_path,SDL_Renderer *ren,SDL_
 	string s = text;
 	text = s.substr(0,count).c_str();
 
-
 	if (talgn == TEXT_ALIGN_RIGHT)
 	{
 		textRect.x = rect.x + rect.w - textRect.w;
@@ -39,6 +38,12 @@ TextView::TextView(const char *text,const char *font_path,SDL_Renderer *ren,SDL_
 	}
 
 	this->text_tx = LoadText(text,font,ren,fgColor);
+}
+
+void TextView::set_y(uint32_t y)
+{
+	this->rect.y = y;
+	this->textRect.y = y;
 }
 
 SDL_Texture* TextView::LoadText(const char *text,TTF_Font *font,SDL_Renderer* ren,SDL_Color color)

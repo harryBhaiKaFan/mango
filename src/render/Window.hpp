@@ -6,6 +6,9 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_render.h>
 
+#define WINDOW_WIDTH 900
+#define WINDOW_HEIGHT 600
+
 using namespace std;
 
 namespace mango

@@ -14,15 +14,8 @@
 #include <SDL2/SDL_ttf.h>
 
 
-// TODO:
-// 
-// 1. Implement window and rendering system properly
-// 2. init() fn must initialise app
-// 		i. Mango.hpp and Mango.cpp will have the functional of app
-// 3. assembling components and making the app
-
+#include "Mango.hpp"
 #include "render/Window.hpp"
-#include "render/Render.hpp"
 
 using namespace std;
 
@@ -40,16 +33,16 @@ int main(int ac,char *av[])
 		exit(EXIT_FAILURE);
 	}
 
-	TTF_Font *f = mango::LoadFont("./font/FiraMonoNerdFontMono-Medium.otf");
 
 	mango::Window* win = mango::Window::get();
-	mango::init(win->renderer);
 
+	mango::Header *header = mango::Header::get(win->renderer);
+	mango::TabNav *tabnav = mango::TabNav::get(win->renderer);
+	mango::Editor *editor = mango::Editor::get(win->renderer);
 
 	SDL_Event e;
 	bool running = true;
 
-	SDL_StartTextInput(); // For android
 	while(running)
 	{
 		while(SDL_PollEvent(&e))
@@ -59,13 +52,17 @@ int main(int ac,char *av[])
 				running = false;
 			}
 
+			header->process_events(&e);
+			tabnav->process_events(&e);
+			editor->process_events(&e);
 		}
-
-
 		win->clear();
 
-		win->render();
+		header->render(win->renderer);
+		tabnav->render(win->renderer);
+		editor->render(win->renderer);
 
+		win->render();
 		SDL_Delay(17);
 	}
 

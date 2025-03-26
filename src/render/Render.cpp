@@ -11,15 +11,10 @@ namespace mango
 {
 
 
-void init(SDL_Renderer* ren)
-{
-	// TODO: app init fn
-}
-
-TTF_Font* LoadFont(const char *path)
+TTF_Font* LoadFont(const char *path, int ptsize)
 {
 	TTF_Font *f;
-	f = TTF_OpenFont(path, 72);
+	f = TTF_OpenFont(path, ptsize);
 	if (f == NULL)
 	{
 		cout << "Could not load font: " << TTF_GetError() << endl;

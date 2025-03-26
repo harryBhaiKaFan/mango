@@ -24,11 +24,11 @@ namespace mango
 			int paddingB = 0;
 			
 			View(SDL_Color bgColor,SDL_Rect rect);
-			void setBorder(SDL_Color borderColor);
-			void removeBorder();
+			void set_border(SDL_Color borderColor);
+			void remove_border();
 			void padding(uint32_t p);
-			void paddingBlock(uint32_t p);
-			void paddingInline(uint32_t p);
+			void padding_block(uint32_t p);
+			void padding_inline(uint32_t p);
 			void render(SDL_Renderer *ren);
 	};
 

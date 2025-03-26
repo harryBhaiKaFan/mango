@@ -11,7 +11,7 @@ Window* Window::win = NULL;
 Window::Window()
 {
 
-	this->window = SDL_CreateWindow("Mango",0,0,640,480,SDL_WINDOW_SHOWN);
+	this->window = SDL_CreateWindow("Mango",0,0,WINDOW_WIDTH,WINDOW_HEIGHT,SDL_WINDOW_SHOWN);
 	this->renderer = SDL_CreateRenderer(window,-1,SDL_RENDERER_ACCELERATED);
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 

@@ -7,8 +7,7 @@
 namespace mango
 {
 
-void init(SDL_Renderer* ren);
-TTF_Font* LoadFont(const char *path);
+TTF_Font* LoadFont(const char *path,int ptsize);
 
 }
 
