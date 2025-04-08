@@ -58,9 +58,9 @@ int main(int ac,char *av[])
 		}
 		win->clear();
 
-		header->render(win->renderer);
 		tabnav->render(win->renderer);
 		editor->render(win->renderer);
+		header->render(win->renderer);
 
 		win->render();
 		SDL_Delay(17);

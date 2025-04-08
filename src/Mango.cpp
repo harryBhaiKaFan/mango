@@ -2,6 +2,7 @@
 #include "render/Render.hpp"
 #include "render/Window.hpp"
 #include <SDL2/SDL_events.h>
+#include <SDL2/SDL_keyboard.h>
 #include <SDL2/SDL_keycode.h>
 #include <SDL2/SDL_mouse.h>
 #include <SDL2/SDL_render.h>
@@ -30,7 +31,7 @@ void* new_file_fn(void* data)
 
 	cout << tabnav->tabs.size() << endl; 
 	
-	Button untitled_tab{
+	Button btn{
 		"Unnamed",
 		ren,
 		{tab_btn_gap + (int)tabnav->tabs.size()*100,tabnav_rect.y,100,20},
@@ -40,14 +41,17 @@ void* new_file_fn(void* data)
 		0
 	};
 
-	tabnav->tabs.push_back(untitled_tab);
+	Tab tab = {btn,select_tab};
+	tabnav->tabs.push_back(tab);
 
 	return NULL;
 }
 
 void* save_file_fn(void*)
 {
+	TabNav *tabnav = TabNav::get(NULL);
 
+	//tabnav
 	return NULL;
 }
 
@@ -57,31 +61,83 @@ void* open_file_fn(void *data)
 	extern SDL_Rect tabnav_rect;
 	SDL_Renderer *ren = (SDL_Renderer*)data;
 	TabNav *tabnav = TabNav::get(NULL);
+	Header *header = Header::get(NULL);
 
-	Button untitled_tab{
-		"Unnamed",
-		ren,
-		{tab_btn_gap + (int)tabnav->tabs.size()*100,tabnav_rect.y,100,20},
-		FONT_PATH,
-		button_bg,
-		button_fg,
-		0
-	};
+	header->popInput_active = true;
 
+	
 	return NULL;
 }
 
 void* close_file_fn(void*)
 {
+	TabNav *tabnav = TabNav::get(NULL);
+
 	return NULL;
 }
 
 // tab button functions
 
-void* select_tab(void*)
+void* select_tab(void* data)
 {
+	Tab *curr_tab = (Tab*) data;
+	TabNav *tb = TabNav::get(NULL);
+
 	return NULL;
 }
+
+// PopInput starts here
+
+SDL_Rect popup_rect = {
+	(WINDOW_WIDTH/2) - (250/2),
+	(WINDOW_HEIGHT/2) - (100/2),
+	250,
+	100
+};
+SDL_Rect popup_inp_rect = {
+	popup_rect.x+popup_rect.w/2-(200/2),
+	popup_rect.y+20,
+	200,
+	25
+};
+SDL_Rect popup_btn_rect = {
+	popup_rect.x+popup_rect.w/2-(30/2),
+	popup_inp_rect.y + popup_inp_rect.h + 25,
+	30,
+	15
+};
+
+void* popup_btn_click(void* data)
+{
+	Header *header = Header::get(NULL);
+	header->popInput_active = false;
+
+	return NULL;
+}
+
+PopInput::PopInput(SDL_Renderer *ren,SDL_Color bgColor = {50,50,50,255}):
+	View(bgColor,popup_rect),
+	inp(FONT_PATH,popup_inp_rect,{255,255,255,255},{0,0,0,255},10),
+	ok("OK",ren, popup_btn_rect,FONT_PATH,{30,30,30,255}, {255,255,255,255}, 10)
+{
+	this->ok.attach_click_listener(popup_btn_click);
+}
+
+void PopInput::process_events(SDL_Event *e)
+{
+	inp.process_events(e);
+	ok.process_events(e);
+}
+
+void PopInput::render(SDL_Renderer *ren)
+{
+	((View*)this)->render(ren);
+	this->inp.render(ren);
+	this->ok.render(ren);
+}
+
+
+// PopInput ends here
 
 // Header starts here
 SDL_Color header_bg = {45,45,45,255};
@@ -93,6 +149,7 @@ Header* Header::header = NULL;
 
 Header::Header(SDL_Renderer *ren):
 	View(header_bg,header_rect),
+	popInput(ren),
 	newFile("New", ren,{header_padding+0, header_rect.y, 60, 20},FONT_PATH,button_bg,button_fg, 5),
 	saveFile("Save", ren, {header_padding+90,header_rect.y,60,20},FONT_PATH,button_bg,button_fg,5),
 	openFile("Open",ren,{header_padding+180,header_rect.y,60,20},FONT_PATH,button_bg,button_fg,5),
@@ -104,9 +161,9 @@ Header::Header(SDL_Renderer *ren):
 
 	this->newFile.attach_click_listener(new_file_fn);
 	this->newFile.click_param_data = ren;
-	
+
 	this->saveFile.attach_click_listener(save_file_fn);
-	
+
 	this->openFile.attach_click_listener(open_file_fn);
 	this->openFile.click_param_data = ren;
 
@@ -119,6 +176,9 @@ void Header::process_events(SDL_Event *e)
 	saveFile.process_events(e);
 	openFile.process_events(e);
 	closeFile.process_events(e);
+
+	if (popInput_active)
+		popInput.process_events(e);
 }
 
 void Header::render(SDL_Renderer *ren)
@@ -128,6 +188,9 @@ void Header::render(SDL_Renderer *ren)
 	saveFile.render(ren);
 	openFile.render(ren);
 	closeFile.render(ren);
+
+	if (popInput_active)
+		popInput.render(ren);
 }
 
 Header* Header::get(SDL_Renderer *ren)
@@ -138,6 +201,42 @@ Header* Header::get(SDL_Renderer *ren)
 	return header;
 }
 // Header ends here
+
+// Tab starts here
+
+
+Tab::Tab(Button b,void* (*fn)(void*)):
+	View({0},{0}),
+	btn(b)
+{
+	this->btn.attach_click_listener(fn);
+	this->btn.click_param_data = this;
+
+	this->setSavedState(false);
+}
+
+void Tab::setSavedState(bool saved)
+{
+	if (!saved) 
+	{
+		btn.set_border({255,255,0,255});
+		return;
+	}
+
+	btn.set_border({0});
+}
+
+void Tab::process_events(SDL_Event *e)
+{
+	this->btn.process_events(e);
+}
+
+void Tab::render(SDL_Renderer *ren)
+{
+	this->btn.render(ren);
+}
+
+// Tab ends here
 
 // TabNav starts here
 
@@ -156,23 +255,21 @@ TabNav* TabNav::tabnav = NULL;
 
 TabNav::TabNav(SDL_Renderer *ren):View(tabnav_bg,tabnav_rect)
 {
-	// this->setBorder({0,255,255,255});
 	Button untitled_tab{
 		"Unnamed",
-		ren,
-		{tab_btn_gap,tabnav_rect.y,100,20},
-		FONT_PATH,
-		button_bg,
-		button_fg,
-		0
+			ren,
+			{tab_btn_gap,tabnav_rect.y,100,20},
+			FONT_PATH,
+			button_bg,
+			button_fg,
+			0
 	};
-
-	this->tabs.push_back(untitled_tab);
+	this->tabs.push_back(Tab{untitled_tab,select_tab});
 }
 
 void TabNav::process_events(SDL_Event *e)
 {
-	for (Button tab: tabs)
+	for (Tab tab: tabs)
 		tab.process_events(e);
 }
 
@@ -180,8 +277,10 @@ void TabNav::render(SDL_Renderer *ren)
 {
 	((View*)this)->render(ren);
 
-	for (Button tab: tabs)
+	for (Tab tab: tabs)
+	{
 		tab.render(ren);
+	}
 }
 
 TabNav* TabNav::get(SDL_Renderer *ren)
@@ -210,74 +309,77 @@ Editor* Editor::editor = NULL;
 Editor::Editor(SDL_Renderer *ren):View(editor_bg,editor_rect)
 {
 	this->padding(20);
-	text_rects.push_back(rect);
+	this->start_edit();
+	this->add_line(0);
+}
 
-	SDL_Rect &textRect = text_rects[0];
+void Editor::start_edit()
+{
+	SDL_StartTextInput();
+}
 
-	this->font = LoadFont(FONT_PATH, 24);
+void Editor::stop_edit()
+{
+	SDL_StopTextInput();
+}
+
+void Editor::add_line(int line_before) // 0-indexed line before
+{
+	SDL_Rect textRect = {.x=0,.y=editor_rect.y+editor_rect.h,.w=WINDOW_WIDTH};
+
+	this->font = LoadFont(FONT_PATH, text_size);
 	int extent, count;
 
 	TTF_MeasureText(font, text.c_str(), textRect.w, &extent, &count);
-	
+
 	if (textRect.w > extent) textRect.w = extent;
-	textRect.h = 24 * 1.3;
+	textRect.h = text_size * 1.3;
 	text = text.substr(0,count);
 
 	this->fgColor = (SDL_Color){
-				.r = 225,
-				.g = 245,
-				.b = 225,
-				.a = 255
+		.r = 225,
+			.g = 245,
+			.b = 225,
+			.a = 255
 	};
 
 	this->cursor = (SDL_Rect){
 		.x=0,.y=0,.w=10,.h=60
 	};
+
+	text_rects.insert(text_rects.begin()+line_before,textRect);
 }
 
-void Editor::start_edit()
+void Editor::remove_line(int line_no) // 0-indexed line no.
 {
-
+	line_nos.erase(line_nos.begin() + line_no);
+	text_rects.erase(text_rects.begin() + line_no);
+	str_chunks.erase(str_chunks.begin() + line_no);
 }
 
-void Editor::stop_edit()
+string Editor::get_text()
 {
-
+	return this->text;
 }
 
-void Editor::add_line()
+void Editor::set_text(string s)
 {
-
-}
-
-void Editor::remove_line()
-{
-}
-
-void Editor::get_text()
-{
-}
-
-void Editor::set_text()
-{
+	this->text = s;
 }
 
 
 void Editor::process_events(SDL_Event *e)
 {
-	if (e->type == SDL_MOUSEWHEEL_NORMAL)
-	{
-		return;
-	}else if (e->type == SDL_MOUSEWHEEL_FLIPPED)
-	{
-		return;
-	}
 }
 
 void Editor::render(SDL_Renderer *ren)
 {
 	((View*)this)->render(ren);
 
+	for (size_t i = 0; i < line_nos.size(); i++)
+	{
+
+	}
 	SDL_Texture *text_tx = TextView::LoadText(text.c_str(),font,ren,fgColor);
 	SDL_RenderCopy(ren,text_tx,NULL,&text_rects[0]);
 }
