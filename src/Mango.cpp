@@ -376,12 +376,12 @@ void Editor::render(SDL_Renderer *ren)
 {
 	((View*)this)->render(ren);
 
-	for (size_t i = 0; i < line_nos.size(); i++)
-	{
-
-	}
-	SDL_Texture *text_tx = TextView::LoadText(text.c_str(),font,ren,fgColor);
-	SDL_RenderCopy(ren,text_tx,NULL,&text_rects[0]);
+//	for (size_t i = 0; i < line_nos.size(); i++)
+//	{
+//
+//	}
+//	SDL_Texture *text_tx = TextView::LoadText(text.c_str(),font,ren,fgColor);
+//	SDL_RenderCopy(ren,text_tx,NULL,&text_rects[0]);
 }
 
 Editor* Editor::get(SDL_Renderer *ren)
